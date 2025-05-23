@@ -23,11 +23,12 @@ tags_df = pd.read_csv("tags.csv", encoding='ISO-8859-1')
 movies = pd.read_csv("movies.csv", encoding='ISO-8859-1')
 
 # 🔧 Preprocessing
-tags_df['tag'] = tags_df['tag'].str.lower().fillna('')
-top_tags = tags_df['tag'].value_counts().head(100).index.tolist()
+all_tags = sorted(tags_df['tag'].dropna().str.lower().unique())
+selected_tag = st.selectbox("Search by Tag", all_tags)
 
 # 🧩 Merge ratings and tags
 rating_tags = rating.merge(tags_df[['userId', 'movieId', 'tag']], on=['userId', 'movieId'], how='left')
+st.write("Sample merged data:", rating_tags[['userId', 'movieId', 'tag']].dropna().head())
 
 # 🔧 Sidebar filter
 st.sidebar.header("🔍 Filter by Tag")
