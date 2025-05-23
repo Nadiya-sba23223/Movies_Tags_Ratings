@@ -29,6 +29,10 @@ st.markdown("""
             text-align: center;
             font-size: 15px;
         }
+        .purple-tag {
+            color: #9C27B0;
+            font-weight: bold;
+        }
     </style>
 """, unsafe_allow_html=True)
 
@@ -40,8 +44,8 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # 📁 Load data
-rating_sample = pd.read_csv("rating_sample.csv") 
-all_tags = pd.read_csv("tags.csv", encoding='ISO-8859-1') 
+rating_sample = pd.read_csv("rating_sample.csv")
+all_tags = pd.read_csv("tags.csv", encoding='ISO-8859-1')
 
 # 🧹 Clean tag list
 tag_set = sorted(set(all_tags['tag'].dropna().str.lower().unique()))
@@ -64,19 +68,19 @@ if selected_tag:
     else:
         summary = summary.sort_values(by="Number_of_Ratings", ascending=False)
 
-    # 🎨 Rename for display
+    # 🎨 Rename for display and drop unnecessary columns
     summary_display = summary.rename(columns={
         "title": "🎬 Movie Title",
         "genres": "🎭 Genre",
         "Average_Rating": "⭐ Rating",
         "Number_of_Ratings": "👥 Number of Votes"
-    })
+    }).drop(columns=['movieId'])
 
-    # 📋 Results header
-    st.markdown(f"### 🎬 Top Movies Tagged With: `{selected_tag}`")
+    # 📋 Results header with purple tag
+    st.markdown(f"<h4>🎬 Top Movies Tagged With: <span class='purple-tag'>\"{selected_tag}\"</span></h4>", unsafe_allow_html=True)
 
-    # 🖥️ Display results
-    st.dataframe(summary_display.head(10), use_container_width=True)
+    # 🖥️ Display results without index
+    st.dataframe(summary_display.head(10), use_container_width=True, hide_index=True)
 
 else:
     st.info("Start typing a tag to explore movie recommendations.")
