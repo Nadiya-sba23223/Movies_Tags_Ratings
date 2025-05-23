@@ -4,8 +4,8 @@ import numpy as np
 
 st.title("🎯 Smart Movie Discovery for Curious Minds")
 
-# Load your preprocessed data (assumes it's been cleaned earlier)
-ratings_sample = pd.read_csv("ratings_sample.csv")  # or keep it in memory
+# Load your preprocessed data
+rating_sample = pd.read_csv("ratin_sample.csv")  # or keep it in memory
 all_tags = pd.read_csv("tags.csv")  # or from memory
 
 # Preprocess tags
@@ -18,7 +18,7 @@ sort_option = st.radio("Sort results by:", ["Average Rating", "Popularity"])
 
 # Filter and summarize
 if selected_tag:
-    filtered = ratings_sample[ratings_sample['tag'].str.lower().str.contains(selected_tag, na=False)]
+    filtered = rating_sample[rating_sample['tag'].str.lower().str.contains(selected_tag, na=False)]
 
     summary = filtered.groupby(['movieId', 'title', 'genres']).agg(
         Average_Rating=('rating', 'mean'),
