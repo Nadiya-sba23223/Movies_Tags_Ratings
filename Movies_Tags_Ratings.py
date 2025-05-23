@@ -76,7 +76,7 @@ if selected_tag:
 
     # 🔠 Purple-styled tag name
     st.markdown(
-        f"""<h4>🎬 Top Movies Tagged With: <span class="purple-tag">"{selected_tag}"</span></h4>""",
+        f""<h4>🎬 Top Movies Tagged With: <span class="purple-tag">"{selected_tag}"</span></h4>"",
         unsafe_allow_html=True
     )
 
