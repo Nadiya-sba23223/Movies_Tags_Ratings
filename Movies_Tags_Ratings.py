@@ -1,3 +1,7 @@
+import streamlit as st
+import pandas as pd
+import numpy as np
+
 # 🎨 Add custom CSS for style and background
 st.markdown("""
     <style>
