@@ -1,8 +1,7 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
 
-# 🎨 Add custom CSS for style and background
+# 🎨 Custom CSS
 st.markdown("""
     <style>
         html, body, [class*="css"] {
@@ -21,7 +20,7 @@ st.markdown("""
         }
         thead tr th {
             background-color: #2E86C1;
-            color: white;
+            color: white !important;
             font-size: 16px;
             text-align: center;
         }
@@ -30,13 +29,13 @@ st.markdown("""
             font-size: 15px;
         }
         .purple-tag {
-            color: #9C27B0;
+            color: #9C27B0 !important;
             font-weight: bold;
         }
     </style>
 """, unsafe_allow_html=True)
 
-# 🎯 Centered title
+# 🎯 Title
 st.markdown("""
     <div style='text-align: center; padding: 10px 0 20px 0;'>
         <h1 style='color: #2E86C1; font-size: 40px;'>🎯 Smart Movie Discovery for Curious Minds</h1>
@@ -47,14 +46,13 @@ st.markdown("""
 rating_sample = pd.read_csv("rating_sample.csv")
 all_tags = pd.read_csv("tags.csv", encoding='ISO-8859-1')
 
-# 🧹 Clean tag list
+# 🧹 Tags
 tag_set = sorted(set(all_tags['tag'].dropna().str.lower().unique()))
 
-# 🧭 Tag UI
+# 🔍 Tag selection
 selected_tag = st.selectbox("Start typing a tag (e.g. time travel, based on a book)", tag_set)
 sort_option = st.radio("Sort results by:", ["Average Rating", "Popularity"])
 
-# 📊 Filter logic
 if selected_tag:
     filtered = rating_sample[rating_sample['tag'].str.lower().str.contains(selected_tag, na=False)]
 
@@ -68,7 +66,7 @@ if selected_tag:
     else:
         summary = summary.sort_values(by="Number_of_Ratings", ascending=False)
 
-    # 🎨 Rename for display and drop unnecessary columns
+    # 🎨 Rename and drop ID
     summary_display = summary.rename(columns={
         "title": "🎬 Movie Title",
         "genres": "🎭 Genre",
@@ -76,11 +74,17 @@ if selected_tag:
         "Number_of_Ratings": "👥 Number of Votes"
     }).drop(columns=['movieId'])
 
-    # 📋 Results header with purple tag
-    st.markdown(f"<h4>🎬 Top Movies Tagged With: <span class='purple-tag'>\"{selected_tag}\"</span></h4>", unsafe_allow_html=True)
+    # 🔠 Purple-styled tag name
+    st.markdown(
+        f"""<h4>🎬 Top Movies Tagged With: <span class="purple-tag">"{selected_tag}"</span></h4>""",
+        unsafe_allow_html=True
+    )
 
-    # 🖥️ Display results without index
-    st.dataframe(summary_display.head(10), use_container_width=True, hide_index=True)
+    # 🧾 Table (hide index)
+    st.dataframe(
+        summary_display.head(10).style.hide(axis="index"),
+        use_container_width=True
+    )
 
 else:
     st.info("Start typing a tag to explore movie recommendations.")
