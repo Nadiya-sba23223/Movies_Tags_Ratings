@@ -1,7 +1,3 @@
-import streamlit as st
-import pandas as pd
-import numpy as np
-
 # 🎨 Add custom CSS for style and background
 st.markdown("""
     <style>
@@ -19,14 +15,23 @@ st.markdown("""
             border-radius: 8px;
             padding: 10px;
         }
+        thead tr th {
+            background-color: #2E86C1;
+            color: white;
+            font-size: 16px;
+            text-align: center;
+        }
+        tbody tr td {
+            text-align: center;
+            font-size: 15px;
+        }
     </style>
 """, unsafe_allow_html=True)
 
-# 🎯 Centered, modern title
+# 🎯 Centered title
 st.markdown("""
-    <div style='text-align: center; padding: 15px 0;'>
-        <h1>🎯 Smart Movie Discovery for Curious Minds</h1>
-        <h4 style='color: #4A4E69;'>A sleek interface tailored for the 18–35 audience</h4>
+    <div style='text-align: center; padding: 10px 0 20px 0;'>
+        <h1 style='color: #2E86C1; font-size: 40px;'>🎯 Smart Movie Discovery for Curious Minds</h1>
     </div>
 """, unsafe_allow_html=True)
 
@@ -38,7 +43,6 @@ all_tags = pd.read_csv("tags.csv", encoding='ISO-8859-1')
 tag_set = sorted(set(all_tags['tag'].dropna().str.lower().unique()))
 
 # 🧭 Tag UI
-st.header("🔖 Discover Movies by Tag")
 selected_tag = st.selectbox("Start typing a tag (e.g. time travel, based on a book)", tag_set)
 sort_option = st.radio("Sort results by:", ["Average Rating", "Popularity"])
 
@@ -56,16 +60,19 @@ if selected_tag:
     else:
         summary = summary.sort_values(by="Number_of_Ratings", ascending=False)
 
+    # 🎨 Rename for display
+    summary_display = summary.rename(columns={
+        "title": "🎬 Movie Title",
+        "genres": "🎭 Genre",
+        "Average_Rating": "⭐ Rating",
+        "Number_of_Ratings": "👥 Number of Votes"
+    })
+
     # 📋 Results header
     st.markdown(f"### 🎬 Top Movies Tagged With: `{selected_tag}`")
 
-    # ✨ Format table nicely
-    styled_summary = summary.head(10).style.format({
-        "Average_Rating": "{:.2f}",
-        "Number_of_Ratings": "{:,}"
-    }).background_gradient(cmap='PuBu')
-
-    st.dataframe(styled_summary, use_container_width=True)
+    # 🖥️ Display results
+    st.dataframe(summary_display.head(10), use_container_width=True)
 
 else:
     st.info("Start typing a tag to explore movie recommendations.")
