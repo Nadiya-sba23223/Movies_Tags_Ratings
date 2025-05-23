@@ -41,7 +41,7 @@ with st.sidebar:
     sort_by = st.radio("Sort by", ["Average Rating", "Popularity"])
 
 # 🔍 Filter data based on tag
-filtered = rating_tags[rating_tags['tag'].str.contains(selected_tag, na=False)]
+filtered = rating_tags[rating_tags['tag_y'].str.contains(selected_tag, na=False)]
 
 # 🔗 Merge with movie metadata
 filtered = filtered.merge(movies[['movieId', 'title', 'genres']], on='movieId', how='left')
