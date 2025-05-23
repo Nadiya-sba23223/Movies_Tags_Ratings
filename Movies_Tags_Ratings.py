@@ -5,7 +5,7 @@ import numpy as np
 st.title("🎯 Smart Movie Discovery for Curious Minds")
 
 # Load your preprocessed data
-rating_sample = pd.read_csv("ratin_sample.csv")  # or keep it in memory
+rating_sample = pd.read_csv("rating_sample.csv")  # or keep it in memory
 all_tags = pd.read_csv("tags.csv")  # or from memory
 
 # Preprocess tags
