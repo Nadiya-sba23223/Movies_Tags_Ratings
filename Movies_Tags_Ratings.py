@@ -46,7 +46,9 @@ with st.sidebar:
 
 # 🔍 Filter ratings by tag
 filtered = rating_sample[rating_sample['tag'].str.lower().str.contains(selected_tag, na=False)]
-filtered = filtered.merge(movies, on="movieId")
+
+# 🧩 Ensure title and genres are included in the merge
+filtered = filtered.merge(movies[['movieId', 'title', 'genres']], on="movieId", how="left")
 
 # 🎭 Apply genre filter
 if selected_genres:
