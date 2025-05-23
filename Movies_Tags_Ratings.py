@@ -55,16 +55,14 @@ if selected_genres:
     filtered = filtered[filtered['genres'].apply(lambda x: any(g in x for g in selected_genres))]
 
 # 📊 Grouped summary
-if not filtered.empty:
+required_cols = ['movieId', 'title', 'genres', 'rating']
+if all(col in filtered.columns for col in required_cols) and not filtered.empty:
     summary = filtered.groupby(['movieId', 'title', 'genres']).agg(
         Average_Rating=('rating', 'mean'),
         Number_of_Ratings=('rating', 'count')
     ).reset_index()
 else:
     summary = pd.DataFrame(columns=['movieId', 'title', 'genres', 'Average_Rating', 'Number_of_Ratings'])
-
-if summary.empty:
-    st.warning("No results found for the selected tag and genres. Try a different combination.")
 
 # 🧮 Sort
 if sort_by == "Average Rating":
