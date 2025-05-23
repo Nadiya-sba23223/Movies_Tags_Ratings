@@ -47,11 +47,11 @@ with st.sidebar:
 # 🔍 Filter ratings by tag
 filtered = rating_sample[rating_sample['tag'].str.lower().str.contains(selected_tag, na=False)]
 
-# 🧩 Ensure title and genres are included in the merge
+# ✅ Merge in title and genres (must come before genre filtering or charting)
 filtered = filtered.merge(movies[['movieId', 'title', 'genres']], on="movieId", how="left")
 
-# 🎭 Apply genre filter
-if selected_genres:
+# 🎭 Apply genre filter (only if genres column exists)
+if selected_genres and 'genres' in filtered.columns:
     filtered = filtered[filtered['genres'].apply(lambda x: any(g in x for g in selected_genres))]
 
 # 📊 Grouped summary
