@@ -2,17 +2,15 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
-# 🎨 Custom page style
+# 🎨 Custom CSS for look and feel
 st.markdown("""
     <style>
-        .stApp {
-            background-image: linear-gradient(to bottom right, #ffffff, #f0f8ff);
-            font-family: 'Segoe UI', sans-serif;
-        }
+        body { background-color: #f4f8fb; }
+        .stApp { background-image: linear-gradient(to bottom right, #ffffff, #e8f1f9); }
     </style>
 """, unsafe_allow_html=True)
 
-# 🎯 Title
+# 🎯 Stylish, centered title
 st.markdown("""
     <div style='text-align: center; padding: 10px 0 20px 0;'>
         <h1 style='color: #2E86C1; font-size: 40px;'>🎯 Smart Movie Discovery for Curious Minds</h1>
@@ -21,59 +19,39 @@ st.markdown("""
 
 # 📁 Load data
 rating = pd.read_csv("rating_sample.csv")
-tags = pd.read_csv("tags.csv", encoding='ISO-8859-1')
+tags_df = pd.read_csv("tags.csv", encoding='ISO-8859-1')
 movies = pd.read_csv("movies.csv", encoding='ISO-8859-1')
 
-# 🧹 Preprocess
-tags['tag'] = tags['tag'].str.lower().fillna('')
-top_tags = tags['tag'].value_counts().head(100).index.tolist()
+# 🔧 Preprocessing
+tags_df['tag'] = tags_df['tag'].str.lower().fillna('')
+top_tags = tags_df['tag'].value_counts().head(100).index.tolist()
 
-movies['genres'] = movies['genres'].fillna('')
+# 🧩 Merge ratings and tags
+rating_tags = rating.merge(tags_df[['userId', 'movieId', 'tag']], on=['userId', 'movieId'], how='left')
 
-# Extract unique genres
-unique_genres = sorted(set(
-    g for genre_str in movies['genres'] for g in genre_str.split('|') if g != '(no genres listed)'
-))
+# 🔧 Sidebar filter
+st.sidebar.header("🔍 Filter by Tag")
+selected_tag = st.sidebar.selectbox("Choose from Top 100 Tags", sorted(top_tags))
+sort_by = st.sidebar.radio("Sort by:", ["Average Rating", "Popularity"])
 
-# 🔧 Sidebar filters
-with st.sidebar:
-    st.header("🔎 Filter Your Discovery")
-    selected_tag = st.selectbox("Search by Tag", top_tags)
-    selected_genres = st.multiselect("Filter by Genre(s)", unique_genres)
-    sort_by = st.radio("Sort by:", ["Average Rating", "Popularity"])
+# 🔍 Filter data
+filtered = rating_tags[rating_tags['tag'].str.contains(selected_tag, na=False)]
+filtered = filtered.merge(movies[['movieId', 'title', 'genres']], on='movieId', how='left')
 
-# 🔍 Merge data
-rating_tags = pd.merge(rating, tags, on=["userId", "movieId"], how="left")
-merged = pd.merge(rating_tags, movies, on="movieId", how="left")
-
-# 🔍 Filter by tag
-filtered = merged[merged['tag_x'].str.contains(selected_tag, na=False)]
-
-# ✅ Ensure title and genres are present
-filtered = filtered[['movieId', 'title', 'genres', 'rating']]
-
-# 🎭 Filter by genre
-if selected_genres:
-    filtered = filtered[filtered['genres'].apply(lambda x: any(g in x for g in selected_genres))]
-
-# 📊 Summarize
+# 📊 Summary
 if not filtered.empty:
     summary = filtered.groupby(['movieId', 'title', 'genres']).agg(
         Average_Rating=('rating', 'mean'),
         Number_of_Ratings=('rating', 'count')
     ).reset_index()
 
-    # 🧮 Sort
     if sort_by == "Average Rating":
         summary = summary.sort_values("Average_Rating", ascending=False)
     else:
         summary = summary.sort_values("Number_of_Ratings", ascending=False)
 
-    # 📊 Chart
-    st.markdown(f"### 🍿 Top Movies Tagged With: `{selected_tag}`")
-    if selected_genres:
-        st.markdown(f"🎭 Genres: {', '.join(selected_genres)}")
-
+    # 🎨 Chart selection
+    st.markdown(f"### 🎬 Top Movies Tagged With: `{selected_tag}`")
     chart_type = st.radio("📈 Choose Chart Type", ["Average Rating", "Number of Ratings"])
     chart_data = summary.head(10)
 
@@ -91,10 +69,9 @@ if not filtered.empty:
     fig.update_layout(xaxis_tickangle=-45)
     st.plotly_chart(fig, use_container_width=True)
 
-    # 📋 Styled Table
-    st.dataframe(chart_data.style.background_gradient(cmap='coolwarm').format(
-        {"Average_Rating": "{:.2f}", "Number_of_Ratings": "{:,.0f}"}
-    ), use_container_width=True)
-
+    # 🧾 Styled table
+    styled = chart_data.style.background_gradient(cmap='coolwarm')\
+        .format({"Average_Rating": "{:.2f}", "Number_of_Ratings": "{:,.0f}"})
+    st.dataframe(styled, use_container_width=True)
 else:
-    st.info("No matching movies found. Try a different tag or genre.")
+    st.info("No matching results. Try a different tag.")
